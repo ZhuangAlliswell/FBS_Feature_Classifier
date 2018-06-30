@@ -1,0 +1,34 @@
+%输入：分类器结果（概率）
+%输出：F1score,precesion,recall
+%%
+%设置门槛值
+positiveThreshold=0.975
+%计算class的F1score
+sum=0;
+sumpre=0;
+sumrec=0;
+for positive=[1 2 3 5 6]
+    dataRead=csvread(['result\probaMatrix',num2str(positive),'.csv']);
+    dataRead=dataRead(:,2);
+    label=csvread(['testingData\testingDataLabel.csv']);
+    %%
+    RealPositiveInd=find(label==positive);
+    RealNegativeInd=find(label~=positive);
+    PredictPositiveInd=find(dataRead>positiveThreshold);
+    PredictNegativeInd=find(dataRead<=positiveThreshold);
+    TP=length(intersect(RealPositiveInd,PredictPositiveInd));
+    FP=length(intersect(RealNegativeInd,PredictPositiveInd));
+    TN=length(intersect(RealNegativeInd,PredictNegativeInd));
+    FN=length(intersect(RealPositiveInd,PredictNegativeInd));
+    Precision=TP/(TP+FP);
+    Recall=TP/(TP+FN);
+    F1score=2*Precision*Recall/(Precision+Recall);
+    sum=sum+F1score;
+    sumpre=sumpre+Precision;
+    sumrec=sumrec+Recall;
+    fprintf('%.5f\n',F1score);
+end
+sum=sum/5;
+sumpre=sumpre/5;
+sumrec=sumrec/5;
+fprintf('mean F1score=%.5f, mean Precision=%.5f, mean Recall=%.5f\n',sum,sumpre,sumrec);
